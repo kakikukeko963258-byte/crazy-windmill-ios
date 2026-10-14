@@ -61,6 +61,7 @@ private struct WindmillView: View {
         return ZStack {
             Text(hand)
                 .font(.system(size: glyphSize))
+                .rotationEffect(.degrees(180))
                 .offset(y: -radius)
             Text(hand)
                 .font(.system(size: glyphSize))
@@ -68,7 +69,6 @@ private struct WindmillView: View {
                 .offset(x: radius)
             Text(hand)
                 .font(.system(size: glyphSize))
-                .rotationEffect(.degrees(180))
                 .offset(y: radius)
             Text(hand)
                 .font(.system(size: glyphSize))
