@@ -13,9 +13,9 @@ struct CrazyWindmillApp: App {
 }
 
 private struct WindmillView: View {
-    private let approachDuration = 12.0
+    private let approachDuration = 30.0
     private let stillDuration = 1.0
-    private let rushDuration = 0.72
+    private let rushDuration = 0.30
     private let spinRate = 2.8
 
     @State private var startTime: Date?
@@ -33,10 +33,10 @@ private struct WindmillView: View {
 
                     windmill(
                         transformed: phase.isTransformed,
-                        radius: min(geometry.size.width, geometry.size.height) * 0.205
+                        radius: min(geometry.size.width, geometry.size.height) * 0.205,
+                        scale: phase.scale,
+                        rotation: phase.rotation
                     )
-                    .scaleEffect(phase.scale)
-                    .rotationEffect(.radians(phase.rotation))
                     .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
                 }
             }
@@ -53,33 +53,38 @@ private struct WindmillView: View {
         }
     }
 
-    private func windmill(transformed: Bool, radius: CGFloat) -> some View {
-        let hand = transformed ? "🫵" : "☝️"
+    private func windmill(transformed: Bool, radius: CGFloat, scale: CGFloat, rotation: Double) -> some View {
+        let hand = transformed ? "👉" : "☝️"
         let glyphSize: CGFloat = transformed ? 66 : 62
         let face = transformed ? "😳" : "😁"
 
         return ZStack {
-            Text(hand)
-                .font(.system(size: glyphSize))
-                .rotationEffect(.degrees(180))
-                .offset(y: -radius)
-            Text(hand)
-                .font(.system(size: glyphSize))
-                .rotationEffect(.degrees(-90))
-                .offset(x: radius)
-            Text(hand)
-                .font(.system(size: glyphSize))
-                .offset(y: radius)
-            Text(hand)
-                .font(.system(size: glyphSize))
-                .rotationEffect(.degrees(90))
-                .offset(x: -radius)
-
             Text(face)
                 .font(.system(size: 78))
+
+            ZStack {
+                Text(hand)
+                    .font(.system(size: glyphSize))
+                    .rotationEffect(.degrees(transformed ? -90 : 0))
+                    .offset(y: -radius)
+                Text(hand)
+                    .font(.system(size: glyphSize))
+                    .rotationEffect(.degrees(transformed ? 0 : 90))
+                    .offset(x: radius)
+                Text(hand)
+                    .font(.system(size: glyphSize))
+                    .rotationEffect(.degrees(transformed ? 90 : 180))
+                    .offset(y: radius)
+                Text(hand)
+                    .font(.system(size: glyphSize))
+                    .rotationEffect(.degrees(transformed ? 180 : -90))
+                    .offset(x: -radius)
+            }
+            .rotationEffect(.radians(rotation))
         }
+        .scaleEffect(scale)
         .frame(width: radius * 2 + glyphSize, height: radius * 2 + glyphSize)
-        .accessibilityLabel(transformed ? "😳 surrounded by pointing hands" : "😁 surrounded by four pointing fingers")
+        .accessibilityLabel(transformed ? "😳 surrounded by outward-pointing hands" : "😁 surrounded by four outward-pointing fingers")
     }
 
     private func phase(at elapsed: TimeInterval) -> (scale: CGFloat, rotation: Double, isTransformed: Bool) {
