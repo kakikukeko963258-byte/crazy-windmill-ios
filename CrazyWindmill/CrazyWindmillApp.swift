@@ -14,6 +14,7 @@ struct CrazyWindmillApp: App {
 
 private struct WindmillView: View {
     private let approachDuration = 30.0
+    private let alignDuration = 0.25
     private let stillDuration = 1.0
     private let rushDuration = 0.30
     private let spinRate = 2.8
@@ -41,7 +42,7 @@ private struct WindmillView: View {
                 }
             }
             .onChange(of: elapsed) { value in
-                guard !didTerminate, value >= approachDuration + stillDuration + rushDuration else { return }
+                guard !didTerminate, value >= approachDuration + alignDuration + stillDuration + rushDuration else { return }
                 didTerminate = true
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.04) {
                     exit(EXIT_SUCCESS)
@@ -94,13 +95,22 @@ private struct WindmillView: View {
             return (CGFloat(scale), elapsed * spinRate, false)
         }
 
-        let transitionTime = approachDuration
-        if elapsed < transitionTime + stillDuration {
-            return (1.5, approachDuration * spinRate, true)
+        let phaseElapsed = elapsed - approachDuration
+        let startAngle = approachDuration * spinRate
+        let quarterTurn = Double.pi / 2
+        let targetAngle = (startAngle / quarterTurn).rounded() * quarterTurn
+        if phaseElapsed < alignDuration {
+            let progress = max(0, phaseElapsed / alignDuration)
+            let eased = progress * progress * (3 - 2 * progress)
+            let angle = startAngle + (targetAngle - startAngle) * eased
+            return (1.5, angle, true)
+        }
+        if phaseElapsed < alignDuration + stillDuration {
+            return (1.5, targetAngle, true)
         }
 
-        let rushProgress = min(1, (elapsed - transitionTime - stillDuration) / rushDuration)
+        let rushProgress = min(1, (phaseElapsed - alignDuration - stillDuration) / rushDuration)
         let scale = 1.5 + 30 * pow(rushProgress, 2.2)
-        return (CGFloat(scale), approachDuration * spinRate, true)
+        return (CGFloat(scale), targetAngle, true)
     }
 }
