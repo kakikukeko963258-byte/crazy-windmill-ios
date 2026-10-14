@@ -1,0 +1,37 @@
+name: Build iOS IPA
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build unsigned app
+        run: |
+          xcodebuild \
+            -project CrazyWindmill.xcodeproj \
+            -scheme CrazyWindmill \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+      - name: Package IPA for AltStore
+        run: |
+          mkdir -p ipa/Payload
+          cp -R build/Build/Products/Release-iphoneos/CrazyWindmill.app ipa/Payload/
+          cd ipa
+          zip -qry ../CrazyWindmill-unsigned.ipa Payload
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CrazyWindmill-unsigned-IPA
+          path: CrazyWindmill-unsigned.ipa
+          if-no-files-found: error
+          retention-days: 14
