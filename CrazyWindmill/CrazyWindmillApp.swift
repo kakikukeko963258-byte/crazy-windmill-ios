@@ -65,26 +65,26 @@ private struct WindmillView: View {
             ZStack {
                 Text(hand)
                     .font(.system(size: glyphSize))
-                    .rotationEffect(.degrees(transformed ? -90 : 0))
+                    .rotationEffect(.degrees(transformed ? -90 : 180))
                     .offset(y: -radius)
                 Text(hand)
                     .font(.system(size: glyphSize))
-                    .rotationEffect(.degrees(transformed ? 0 : 90))
+                    .rotationEffect(.degrees(transformed ? 0 : -90))
                     .offset(x: radius)
                 Text(hand)
                     .font(.system(size: glyphSize))
-                    .rotationEffect(.degrees(transformed ? 90 : 180))
+                    .rotationEffect(.degrees(transformed ? 90 : 0))
                     .offset(y: radius)
                 Text(hand)
                     .font(.system(size: glyphSize))
-                    .rotationEffect(.degrees(transformed ? 180 : -90))
+                    .rotationEffect(.degrees(transformed ? 180 : 90))
                     .offset(x: -radius)
             }
             .rotationEffect(.radians(rotation))
         }
         .scaleEffect(scale)
         .frame(width: radius * 2 + glyphSize, height: radius * 2 + glyphSize)
-        .accessibilityLabel(transformed ? "😳 surrounded by outward-pointing hands" : "😁 surrounded by four outward-pointing fingers")
+        .accessibilityLabel(transformed ? "😳 surrounded by outward-pointing hands" : "😁 surrounded by inward-pointing fingers")
     }
 
     private func phase(at elapsed: TimeInterval) -> (scale: CGFloat, rotation: Double, isTransformed: Bool) {
